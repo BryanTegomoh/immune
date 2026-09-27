@@ -1,41 +1,63 @@
 # IMMUNE
 
-**An immune system for AI agents.**
+### Expert feedback that agents can remember, reuse, and test.
 
-A local workbench that turns human corrections into incident memory, optional procedure drafts, and supervised updates to a River-hosted open-weight model. Built from scratch during the September 27, 2026 hackathon. No prior project code was imported.
+IMMUNE is a workbench for reviewing AI agent decisions and carrying those corrections into persistent memory and model evaluation. An expert reviews an output against its evidence, chooses **SHIP**, **REVISE**, or **ESCALATE**, and records the reason. The system connects that feedback to GBrain incident memory, Memorable procedure extraction, and a River training pipeline.
 
-## Start in 30 seconds
+Built by [Bryan Tegomoh, MD, MPH](https://github.com/BryanTegomoh) for the **Own Your Intelligence Hackathon**, September 27, 2026. Created from scratch during the event.
 
-Python 3.10+ is enough to open the bundled workbench. The compiled UI is included.
+[Run locally](#quick-start) · [Measured results](#measured-results) · [Review the cases](docs/TRAINING-REVIEW.md) · [Technical verification](docs/VERIFICATION.md)
+
+## Why IMMUNE
+
+An expert correction should be useful beyond the conversation in which it was made. IMMUNE makes the feedback inspectable, preserves its provenance, and provides a controlled experiment for checking whether supervised training changes future decisions.
+
+The current prototype focuses on synthetic evidence-review and authorization scenarios: unsupported claims, invented citations, uncertainty, untrusted instructions, and actions requiring human approval.
+
+## How it works
+
+1. **Review:** inspect the supplied evidence and the agent's proposed output.
+2. **Correct:** choose a decision and explain it. Draft labels become approved examples only after human review.
+3. **Remember:** store the correction and its provenance in GBrain, then retrieve it.
+4. **Extract:** use Memorable to produce a procedure draft from the completed task trace.
+5. **Train and evaluate:** use River to run a matched baseline, train on approved decisions, save a checkpoint, and evaluate the same held-out inputs again.
+
+Training uses the approved **decision labels**. Written rationales remain in the incident record; this version does not train the model to reproduce those rationales. Retrieved memory is excluded from evaluation prompts so that the paired experiment measures the weight update separately.
+
+## Measured results
+
+The following are recorded API results, not simulated scores.
+
+| Component | Verified result | Evidence |
+|---|---|---|
+| River | Qwen3.5-9B baseline: **11/12 correct**, zero invalid outputs, zero missed required escalations | [Baseline run](https://github.com/BryanTegomoh/immune/actions/runs/36358066104) |
+| GBrain | Wrote a unique diagnostic fact and retrieved that exact fact; also stored and retrieved a procedure draft | [Memory run](https://github.com/BryanTegomoh/immune/actions/runs/36359383279) |
+| Memorable | Extracted a procedure from a completed GBrain task and a successful repository test run | [Procedure run](https://github.com/BryanTegomoh/immune/actions/runs/36359383279) |
+| Integrity checks | Eight automated tests pass locally and in GitHub Actions | [Tests](tests/test_integrity.py) |
+
+**Paired training has not yet completed. No post-training improvement is claimed.** The baseline's single error was an escalation where the draft reference called for revision. The verified GBrain round-trip used a diagnostic record, not an expert-approved correction.
+
+Memorable's second response reported `admitted: true` with `reason: judge_unparseable`. The draft and its provenance are retained, but that response does not establish procedure quality. See the [verification record](docs/VERIFICATION.md) for the earlier result and full limitations.
+
+A self-contained [evidence report](docs/demo.html) includes expandable case details, predictions, and experiment provenance. Open the downloaded HTML in a browser or publish it through Superset Pages.
+
+## Quick start
+
+Python 3.10+ can run the bundled interface without provider credentials:
 
 ```bash
+git clone https://github.com/BryanTegomoh/immune.git
 cd immune
 python3 -m immune.server
 ```
 
-Open **http://127.0.0.1:8765**. On Windows use `python` instead of `python3`.
+Open **http://127.0.0.1:8765**. On Windows, use `python` if that is your Python command.
 
-Without credentials you can review cases, save corrections, inspect connection status, and export the record. There are no simulated model results. The Run baseline and Train & verify buttons are disabled until River is configured.
+The compiled interface is included. Without API keys, you can review synthetic cases, save corrections, and export records. Provider actions require configuration; evaluation scores are not prefilled.
 
-## Provide credentials securely through GitHub
+### Connect the providers
 
-In this private repository, open **Settings > Secrets and variables > Actions > New repository secret**. Add:
-
-- `RIVER_API_KEY`: your River API key.
-- `GBRAIN_TOKEN`: a token connection for your GBrain client with Full memory access.
-- `MEMORABLE_API_KEY`: optional, for procedure extraction.
-
-These are Actions secrets, not files, issues, chat messages, or repository variables. GitHub injects them into the manual workflow; they do not need to be read back or copied into this conversation.
-
-Open **Actions > IMMUNE live experiment > Run workflow**. Start with `check-connections`. This checks River health/model access and GBrain tool discovery without training or writing memory. Once the selected training labels have been reviewed, choose `train`, enter their IDs (for example `T01,T02,T03`), and confirm review. The workflow records those approvals, syncs to GBrain, recalls the incidents, and runs the paired River training/evaluation. Its results are downloadable as a private artifact. It does not run automatically on pushes.
-
-The GitHub workflow does not automatically configure your laptop. To run the UI and integrations locally, follow the `.env` setup below. To inspect a completed Actions run locally, place the artifact's `state.json` at `runs/state.json` before starting the server.
-
-## Connect the live learning loop
-
-**Python 3.12 or newer is required by river-client 0.12.0.** Check `python3 --version` before creating the environment.
-
-In the project folder:
+Live integrations require **Python 3.12+**. No local GPU is required.
 
 ```bash
 python3 -m venv .venv
@@ -46,88 +68,54 @@ cp .env.example .env
 
 On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1` and copy with `Copy-Item .env.example .env`.
 
-Edit `.env` locally. Do not paste credentials into chat, commit them, or expose this server publicly.
+Set the following in your local, ignored `.env` file:
 
-```dotenv
-RIVER_API_KEY=your_river_key
-RIVER_MODEL=Qwen/Qwen3.5-9B
-GBRAIN_TOKEN=your_gbrain_connection_token
-MEMORABLE_API_KEY=optional_memorable_key
-```
+| Variable | Purpose |
+|---|---|
+| `RIVER_API_KEY` | River training and inference |
+| `RIVER_MODEL` | Defaults to `Qwen/Qwen3.5-9B`; use a model available to your account |
+| `GBRAIN_TOKEN` | GBrain token for the intended workspace, with memory read/write access |
+| `MEMORABLE_API_KEY` | Optional procedure extraction |
 
-Restart using the activated environment:
+Restart with `python -m immune.server`. GBrain connects through `https://gbrain.io/mcp` and discovers and validates the available tool schemas. River downloads the tokenizer from Hugging Face and runs model operations on its hosted service.
 
-```bash
-python -m immune.server
-```
+Keep credentials out of source files and exported reports. The application and MCP adapter bind to loopback and are intended for local use.
 
-GBrain setup: open your hackathon workspace, add its Memory application to a client with **Full** access, then create a token connection. The app connects to `https://gbrain.io/mcp`, discovers the current tool schemas, and validates arguments before calling `remember` and `recall`. It stops visibly if your workspace exposes an unsupported schema. The discovered schemas appear in the exported experiment; use the optional JSON argument templates in `.env.example` if needed.
+### Run through GitHub Actions
 
-Confirm River model access before training:
+On a repository you administer, configure the same keys under **Settings → Secrets and variables → Actions**. Then open **Actions → IMMUNE live experiment → Run workflow**.
 
-```bash
-python -m immune.cli models
-```
+| Operation | Behavior |
+|---|---|
+| `check-connections` | Checks River health/model availability and GBrain tool discovery |
+| `memory-check` | Writes and recalls a diagnostic fact; when configured, extracts a Memorable procedure and stores its draft in GBrain |
+| `baseline` | Runs the fixed held-out evaluation without training |
+| `train` | Records explicitly reviewed training IDs, syncs and recalls their corrections, then runs paired training and evaluation |
 
-If the default model is unavailable, select an available model from that output and update `RIVER_MODEL`. Tokenizer downloads require access to Hugging Face. River uses its hosted training service; no local GPU or PyTorch model installation is needed.
+For `train`, provide the reviewed case IDs and confirm that you approve their labels and rationales. The workflow does not run automatically on pushes. Results are uploaded as run artifacts with seven-day retention. Treat logs and artifacts in a public repository as public project material; use synthetic data only.
 
-## Demo sequence
+To view a recorded experiment in the local interface, place its artifact's `state.json` at `runs/state.json` before starting the server.
 
-1. Click **Connect GBrain**. Tool discovery must succeed.
-2. Click **Run baseline**. Wait for actual predictions on 12 fixed held-out cases.
-3. Review training cases. Select SHIP, REVISE, or ESCALATE, edit the rationale, and save. Use **Next case**. Review at least T01 through T12, including acceptable examples. Every prefilled label/rationale is a draft until you approve it.
-4. Click **Sync corrections**, then **Recall incidents**. Show the retrieved GBrain record. If Memorable is configured, extraction produces procedure drafts in the same sync operation.
-5. Click **Train & verify**. This starts a fresh paired experiment: baseline, 12 LoRA updates on approved cases, checkpoint save, then evaluation on the same held-out inputs. The complete run is asynchronous; the browser shows progress.
-6. Inspect **What changed?** and the raw outputs. Show regressions and invalid outputs as well as improvements. Export the experiment.
+## Integrations
 
-Keep the paired experiment running before the pitch, so the judges can inspect completed results. Do not imply that a prerecorded run is occurring live. A separate baseline run is optional; Train & verify measures its own baseline to ensure a matched comparison.
+- **GBrain:** incident memory with provenance and scoped recall.
+- **River:** official SDK, rank-16 LoRA, completion-only loss, checkpoint saving, and matched evaluation.
+- **Memorable:** extraction API with the complete provider response retained alongside each draft.
+- **QM:** MCP adapter exposing `evaluation_status`, `approved_corrections`, and `run_immune`. Implemented and locally tested; not yet registered in a live QM deployment.
+- **Superset:** repository setup/run configuration and an HTML presentation for Pages. Prepared; live use and publication are not yet verified.
 
-## What is implemented, and what still needs verification
+See [integration and demo instructions](docs/SPONSOR-DEMO.md). UFO integration is not implemented.
 
-| Component | Implementation | Status at handoff |
-|---|---|---|
-| UI | React/Vite, correction review, persistence, export, responsive layout | Built locally |
-| River | Official SDK, LoRA, completion-only loss, fixed before/after prompts, checkpoint, raw predictions | SDK signatures checked; credentials needed for live run |
-| GBrain | Streamable HTTP MCP discovery, schema validation, remember/recall | Adapter implemented; credentials and workspace schema need live verification |
-| Memorable | Documented `/v1/extract`, actual review trace, locally stored draft | Adapter implemented; optional key needed |
-| QM | Local MCP tool server, stdio or HTTP, for running experiments and reading results | Tool surface included; not registered in a QM deployment |
-| Superset | This source folder can be opened as the hackathon project | Not used in this environment |
-| UFO | No integration | Not implemented |
+## Evaluation design
 
-**The hackathon requires GBrain use. The River prize requires real River training. This package alone does not establish either qualification. Complete and show the live calls.**
+- **24 training cases and 12 held-out cases**, balanced across SHIP, REVISE, and ESCALATE.
+- Held-out cases cannot be approved through the correction endpoint or included in the training batch.
+- Model inputs contain only supplied context and agent output, excluding reference answers, rationales, IDs, and category tags.
+- The paired run uses identical prompt tokens and sampling settings before and after training: greedy decoding, seed 27, and a 32-token output limit.
+- Training is configured for 12 full-batch updates at learning rate `1e-4`. Each experiment starts from the base model.
+- Metrics include correctness, invalid output format, missed required escalations, and unnecessary escalation of acceptable outputs. Raw predictions remain available for inspection.
 
-## Evaluation contract
-
-- 24 training cases and 12 held-out cases, each split balanced across the three labels.
-- Cases authored during this session. No patient records or external dataset used.
-- Held-out examples are inaccessible to the correction endpoint and never enter the training batch. Similar failure categories occur in both splits; this is a small transfer demonstration, not an independent clinical validation dataset.
-- Only the case context and assistant output enter the prompt. Case IDs, reference labels, rationales, and failure-family tags are excluded.
-- Baseline and trained model receive identical token IDs, greedy decoding, seed 27, and a 32-token answer budget. The first and final evaluation share one model instance in each paired run.
-- Strict label parsing: extra text is INVALID. Format compliance can improve without deeper reasoning improvement; inspect raw outputs.
-- Accuracy, missed required escalations, unnecessary escalation on acceptable outputs, and invalid outputs are reported. An always-ESCALATE policy scores only 4/12 and unnecessarily escalates all four acceptable cases.
-- Reference labels are synthetic draft labels. Review them before using these results as expert evaluation. If you edit labels or cases, begin a new experiment and report the change. Do not optimize repeatedly against this tiny held-out set and call it fresh validation.
-- Twelve full-batch steps, rank 16, learning rate 1e-4; these are initial hackathon settings, not optimized hyperparameters.
-- GBrain recall and Memorable drafts are deliberately excluded from the model's evaluation prompt, so the before/after comparison isolates the weight update. There is no memory-only ablation yet.
-- This version starts each training experiment from the base model. It does not implement multi-round continual learning or automatic deployment of a new checkpoint.
-- One expert correction is not guaranteed to improve an LLM. Gains, if any, apply only to this small synthetic task. No claim of clinical safety, immunity, or novel research priority follows.
-
-## QM extension
-
-Run the app first. For a local MCP-capable harness:
-
-```bash
-python -m immune.mcp_server
-```
-
-For a QM deployment on the same machine, an administrator can run the loopback HTTP adapter:
-
-```bash
-python -m immune.mcp_server --http
-```
-
-Its MCP address is `http://127.0.0.1:8767/mcp`. Register it using QM's documented administrator MCP connector route, with access limited to your hackathon scope. This address is local to the process host. A remote QM deployment cannot reach your laptop's loopback address; run both in the same approved environment or have the QM team help configure authenticated transport. Do not make this unauthenticated demo public.
-
-Tools: `evaluation_status`, `approved_corrections`, `run_immune`. The adapter intentionally cannot approve labels on the expert's behalf. It talks to the running app, avoiding a second state writer. Ask the QM agent: "Read the IMMUNE experiment status. Summarize measured changes and failures. Do not claim improvement unless the recorded results support it."
+This small synthetic benchmark demonstrates the engineering workflow. It is not independent clinical validation. The prototype does not implement continual learning, automatic model deployment, or a guarantee that any correction improves performance.
 
 ## Development
 
@@ -137,16 +125,21 @@ npm run build
 python -m unittest discover -s tests -v
 ```
 
-`npm run dev` provides the Vite UI at port 5173 with an API proxy to the Python server. Run only one Python state-writing server per `runs` directory. Do not run the mutation CLI concurrently with the UI server. Credentials are loaded at startup. Runtime state is stored in ignored `runs/state.json`; keep it for the demo. Each run records dataset/prompt/training hashes, model identity, losses, checkpoint path, settings, and raw outputs. Environment keys are not included in exports.
+Use `npm run dev` for the Vite development server while the Python API is running. Runtime state is stored in the ignored `runs/` directory. Run only one state-writing Python process per directory.
 
-## Source documentation
+To regenerate the presentation from recorded results:
 
-- River SFT: https://docs.river.ai/guides/sft/
-- River SDK: https://docs.river.ai/python-api/
-- River account/model access: https://docs.river.ai/quickstart/
-- GBrain memory access: https://gbrain.io/docs/workspace/memory-anywhere
-- GBrain client tokens: https://gbrain.io/docs/tools/assistants
-- Memorable extraction: https://www.memorable.sh/doc
-- QM connectors: https://github.com/yc-software/qm/blob/main/docs/mcp-connectors.md
+```bash
+python scripts/build_demo_report.py runs/state.json --memory runs/memory-check.json
+```
 
-See `docs/PITCH.md` for the presentation and `docs/VERIFICATION.md` for local checks and known gaps.
+## Documentation
+
+- [Training-case review](docs/TRAINING-REVIEW.md)
+- [Verification and limitations](docs/VERIFICATION.md)
+- [Sponsor integration guide](docs/SPONSOR-DEMO.md)
+- [River SDK](https://docs.river.ai/python-api/) and [SFT guide](https://docs.river.ai/guides/sft/)
+- [GBrain memory access](https://gbrain.io/docs/workspace/memory-anywhere)
+- [Memorable API](https://www.memorable.sh/doc)
+- [QM MCP connectors](https://github.com/yc-software/qm/blob/main/docs/mcp-connectors.md)
+- [Superset Pages](https://docs.superset.sh/pages)
