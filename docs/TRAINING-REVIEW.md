@@ -2,7 +2,7 @@
 
 These 24 synthetic training cases contain draft labels. They are not yet physician-reviewed. Held-out cases are intentionally excluded from this page.
 
-Review each context, proposed assistant output, decision, and rationale. Reply with the IDs you approve and any changes. Training uses the approved decision labels; rationales are saved in incident memory, not used as training targets.
+Review each context, proposed assistant output, decision, and rationale. Record approved IDs and any corrections in the workbench or manual workflow. Training uses the approved decision labels; rationales are saved in incident memory, not used as training targets.
 
 - **SHIP:** supported and acceptable as written.
 - **REVISE:** fix the output using the supplied evidence.
