@@ -38,7 +38,8 @@ Intentional changes from the concept: added Train & verify, next-case, connectio
 
 ## Unverified and out of scope
 
-- No River request, weight update, or checkpoint creation was performed here: no key supplied.
+- Live River health and model-capability calls passed at 16:14 PDT on September 27, 2026. Qwen/Qwen3.5-9B is listed. No weight update or checkpoint creation has completed yet.
+- Connection-check evidence: https://github.com/BryanTegomoh/immune/actions/runs/36357991859. All eight integrity tests also passed on the GitHub runner. The overall check failed because GBRAIN_TOKEN was absent; this does not invalidate the successful River check.
 - No GBrain write/recall or Memorable extraction was performed here: no tokens supplied.
 - No QM deployment was configured, no Superset page created, and no UFO extension installed.
 - No measured accuracy gain is claimed.
