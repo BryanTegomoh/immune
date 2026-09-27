@@ -12,7 +12,7 @@ Evidence:
 
 ## Superset: launch and present
 
-The repository includes .superset/config.json and setup.sh. Import this private repository into your authenticated Superset workspace. Setup installs the Python clients and checks experiment integrity; Run starts the workbench at http://127.0.0.1:8765.
+The repository includes .superset/config.json and setup.sh. Import this repository into your authenticated Superset workspace. Setup installs the Python clients and checks experiment integrity; Run starts the workbench at http://127.0.0.1:8765.
 
 Publish the prepared presentation from a Superset terminal:
 
