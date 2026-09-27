@@ -7,6 +7,7 @@ on:
         type: choice
         options:
           - check-connections
+          - memory-check
           - baseline
           - train
         default: check-connections
@@ -65,5 +66,6 @@ jobs:
           path: |
             runs/state.json
             runs/connection-check.json
+            runs/memory-check.json
           if-no-files-found: ignore
           retention-days: 7
