@@ -26,7 +26,7 @@ Verified so far: River inference scored 11/12 on a fixed synthetic held-out set;
 
 https://github.com/BryanTegomoh/immune
 
-The repository is private. Arrange access with the organizers or authorized judges before submission. Do not make it public without Bryan's instruction.
+Use this repository URL for judge access.
 
 ## Demo Video URL
 
