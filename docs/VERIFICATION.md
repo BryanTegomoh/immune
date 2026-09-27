@@ -36,11 +36,18 @@ The generated concept was inspected with view_image, along with the actual deskt
 
 Intentional changes from the concept: added Train & verify, next-case, connection, memory sync/recall, export, and setup controls; added approval count and honest reference-label note; changed the result column from Expert to Reference because synthetic labels are not yet physician-reviewed; used disabled button styling when keys are absent. Above-the-fold copy review found only these purposeful workflow and provenance additions. No decorative imagery or simulated performance was added. No material visual collision remains after the correction.
 
-## Unverified and out of scope
+## Live verification update
+
+- River baseline completed: 11/12 correct, zero invalid outputs, zero missed required escalations; one REVISE reference was predicted ESCALATE. Source: https://github.com/BryanTegomoh/immune/actions/runs/36358066104
+- GBrain authentication, write, and exact diagnostic-fact recall passed. Memorable extraction ran on a real completed task trace; its draft was stored and retrieved through GBrain. Source: https://github.com/BryanTegomoh/immune/actions/runs/36359383279
+- Memorable returned admitted=true and reason=judge_unparseable on the second run. Do not describe this as validated procedure quality. The original draft had been rejected for no_postcondition.
+- Superset launch configuration and self-contained evidence page are prepared but have not been used/published in Superset.
+
+## Remaining limitations
 
 - Live River health and model-capability calls passed at 16:14 PDT on September 27, 2026. Qwen/Qwen3.5-9B is listed. No weight update or checkpoint creation has completed yet.
 - Connection-check evidence: https://github.com/BryanTegomoh/immune/actions/runs/36357991859. All eight integrity tests also passed on the GitHub runner. The overall check failed because GBRAIN_TOKEN was absent; this does not invalidate the successful River check.
-- No GBrain write/recall or Memorable extraction was performed here: no tokens supplied.
+- Expert-reviewed correction sync and paired River training remain pending label review. The verified memory round-trip used a diagnostic record, not an expert correction.
 - No QM deployment was configured, no Superset page created, and no UFO extension installed.
 - No measured accuracy gain is claimed.
 - The application is a loopback-only hackathon prototype, not a production service or medical product.
