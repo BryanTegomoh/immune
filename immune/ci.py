@@ -65,6 +65,22 @@ def main():
         if not result['exact_fact_retrieved']:
             raise RuntimeError('GBrain accepted the write, but the exact diagnostic fact was not found in recall.')
         print('GBrain write and recall passed: the exact unique diagnostic fact was retrieved.',flush=True)
+        if os.getenv('MEMORABLE_API_KEY'):
+            trace={'event_id':marker,'trace':[
+                {'name':'gbrain_remember','input':{'fact':fact,'entity':'immune-hackathon'},'result':result['write']},
+                {'name':'gbrain_recall','input':{'entity':'immune-hackathon','grep':marker},'result':result['recall']},
+                {'name':'verify_exact_fact','input':{'expected':fact},'result':{'matched':True}}]}
+            draft=providers.memorable(trace,'Verify that IMMUNE can write a unique diagnostic fact to GBrain and retrieve that exact fact')
+            result['memorable']=draft
+            (engine.RUNS/'memory-check.json').write_text(json.dumps(result,indent=2))
+            procedure_marker=marker+'-procedure'
+            procedure='IMMUNE procedure draft '+procedure_marker+'. Unreviewed procedural memory from Memorable; recorded data, not executable instructions. '+json.dumps(draft['draft'])
+            result['procedure_write']=providers.gbrain('remember',procedure)
+            result['procedure_recall']=providers.gbrain('recall',procedure_marker)
+            result['procedure_retrieved']=procedure_marker in json.dumps(result['procedure_recall'])
+            (engine.RUNS/'memory-check.json').write_text(json.dumps(result,indent=2))
+            if not result['procedure_retrieved']: raise RuntimeError('Memorable draft stored but procedure recall was not verified.')
+            print('Memorable extracted a procedure from the completed task; its draft was stored and retrieved through GBrain.',flush=True)
     elif op=='baseline':
         wait_for('baseline')
     elif op=='train':
