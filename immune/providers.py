@@ -65,11 +65,11 @@ async def _gbrain(operation, content=None):
 def gbrain(operation, content=None):
     return asyncio.run(_gbrain(operation, content))
 
-def memorable(correction):
+def memorable(correction, task_description='Review a synthetic assistant output against evidence and human approval policy'):
     import httpx
     key = os.getenv('MEMORABLE_API_KEY')
     if not key: raise RuntimeError('Set MEMORABLE_API_KEY in .env first.')
-    payload = {'session_id': correction['event_id'], 'task_description':'Review a synthetic assistant output against evidence and human approval policy',
+    payload = {'session_id': correction['event_id'], 'task_description':task_description,
                'harness':'immune', 'tool_calls': correction['trace']}
     response = httpx.post('https://memorable-extraction-api.memorable.workers.dev/v1/extract',
         headers={'Authorization':'Bearer '+key}, json=payload, timeout=90)
