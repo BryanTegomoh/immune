@@ -4,11 +4,11 @@
 
 - River: 11/12 baseline decisions correct on the fixed synthetic held-out set. Zero invalid outputs. Training has not yet run.
 - GBrain: a unique diagnostic fact was written and the exact fact retrieved. A Memorable draft was also written and retrieved under entity immune-hackathon.
-- Memorable: the extraction API returned a procedure draft from a real completed GBrain task. The first draft was rejected by its quality gate (no_postcondition). It is stored as an unreviewed draft, not an accepted or automatically executable procedure.
+- Memorable: the extraction API returned a procedure draft from a real completed GBrain task. The first draft was rejected (no_postcondition). A second trace included a real successful repository test run; the API returned admitted=true with reason=judge_unparseable. Preserve that caveat: admission is not evidence of a successful quality assessment, and the draft is not automatically executable.
 
 Evidence:
 - https://github.com/BryanTegomoh/immune/actions/runs/36358066104
-- https://github.com/BryanTegomoh/immune/actions/runs/36359180942
+- https://github.com/BryanTegomoh/immune/actions/runs/36359383279
 
 ## Superset: launch and present
 
