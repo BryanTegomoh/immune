@@ -3,6 +3,8 @@ import json
 import os
 import time
 import uuid
+import subprocess
+import sys
 from contextlib import closing
 from . import engine,providers
 
@@ -66,11 +68,15 @@ def main():
             raise RuntimeError('GBrain accepted the write, but the exact diagnostic fact was not found in recall.')
         print('GBrain write and recall passed: the exact unique diagnostic fact was retrieved.',flush=True)
         if os.getenv('MEMORABLE_API_KEY'):
+            checked=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests','-v'],capture_output=True,text=True)
+            if checked.returncode: raise RuntimeError('Repository integrity checks failed before procedure extraction.')
             trace={'event_id':marker,'trace':[
                 {'name':'gbrain_remember','input':{'fact':fact,'entity':'immune-hackathon'},'result':result['write']},
                 {'name':'gbrain_recall','input':{'entity':'immune-hackathon','grep':marker},'result':result['recall']},
-                {'name':'verify_exact_fact','input':{'expected':fact},'result':{'matched':True}}]}
-            draft=providers.memorable(trace,'Verify that IMMUNE can write a unique diagnostic fact to GBrain and retrieve that exact fact')
+                {'name':'verify_exact_fact','input':{'expected':fact},'result':{'matched':True}},
+                {'name':'shell','input':{'command':'python -m unittest discover -s tests -v'},
+                 'result':{'ok':True,'exit_code':checked.returncode,'stdout':checked.stdout,'stderr':checked.stderr}}]}
+            draft=providers.memorable(trace,'Verify IMMUNE GBrain memory round-trip and run repository experiment-integrity tests before training')
             result['memorable']=draft
             (engine.RUNS/'memory-check.json').write_text(json.dumps(result,indent=2))
             procedure_marker=marker+'-procedure'
@@ -80,7 +86,7 @@ def main():
             result['procedure_retrieved']=procedure_marker in json.dumps(result['procedure_recall'])
             (engine.RUNS/'memory-check.json').write_text(json.dumps(result,indent=2))
             if not result['procedure_retrieved']: raise RuntimeError('Memorable draft stored but procedure recall was not verified.')
-            print('Memorable extracted a procedure from the completed task; its draft was stored and retrieved through GBrain.',flush=True)
+            print('Memorable draft stored and retrieved through GBrain. Quality gate: '+json.dumps(draft.get('judge',{})),flush=True)
     elif op=='baseline':
         wait_for('baseline')
     elif op=='train':
