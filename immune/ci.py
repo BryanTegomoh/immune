@@ -2,6 +2,7 @@
 import json
 import os
 import time
+import uuid
 from contextlib import closing
 from . import engine,providers
 
@@ -53,6 +54,17 @@ def main():
         if any(value['status']!='ok' for value in results.values()):
             raise RuntimeError('Connection check incomplete. See each provider status and the private results artifact.')
         print('River health and GBrain tool discovery completed. See the private results artifact.')
+    elif op=='memory-check':
+        marker='immune-memory-check-'+uuid.uuid4().hex
+        fact=marker+' is a synthetic IMMUNE connectivity test, not an expert-approved training correction.'
+        result={'marker':marker,'fact':fact,'write':providers.gbrain('remember',fact)}
+        (engine.RUNS/'memory-check.json').write_text(json.dumps(result,indent=2))
+        result['recall']=providers.gbrain('recall',marker)
+        result['exact_fact_retrieved']=fact in json.dumps(result['recall'])
+        (engine.RUNS/'memory-check.json').write_text(json.dumps(result,indent=2))
+        if not result['exact_fact_retrieved']:
+            raise RuntimeError('GBrain accepted the write, but the exact diagnostic fact was not found in recall.')
+        print('GBrain write and recall passed: the exact unique diagnostic fact was retrieved.',flush=True)
     elif op=='baseline':
         wait_for('baseline')
     elif op=='train':
