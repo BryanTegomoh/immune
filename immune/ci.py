@@ -29,14 +29,29 @@ def main():
     if op=='check-connections':
         import river_client as river
         results={}
-        if not os.getenv('RIVER_API_KEY') or not os.getenv('GBRAIN_TOKEN'):
-            raise ValueError('Add both RIVER_API_KEY and GBRAIN_TOKEN as repository Actions secrets.')
-        with closing(river.Client(api_key=os.environ['RIVER_API_KEY'],timeout=120)) as client:
-            results['river_healthy']=client.health_check()
-            results['river_models']=list(client.get_capabilities())
-        results['gbrain_tools']=providers.gbrain('discover')
+        for provider,key in [('river','RIVER_API_KEY'),('gbrain','GBRAIN_TOKEN')]:
+            if not os.getenv(key):
+                results[provider]={'status':'missing_secret','name':key}
+                continue
+            try:
+                if provider=='river':
+                    with closing(river.Client(api_key=os.environ[key],timeout=120)) as client:
+                        healthy=client.health_check()
+                        models=list(client.get_capabilities())
+                    results[provider]={'status':'ok' if healthy else 'unhealthy','healthy':healthy,'models':models}
+                else:
+                    results[provider]={'status':'ok','tools':providers.gbrain('discover')}
+            except Exception as exc:
+                message=str(exc)
+                for secret in ('RIVER_API_KEY','GBRAIN_TOKEN','MEMORABLE_API_KEY'):
+                    value=os.getenv(secret)
+                    if value: message=message.replace(value,'[redacted]')
+                results[provider]={'status':'error','message':message[:1500]}
         # Discovery is read-only. Actual write and recall are performed during train.
         (engine.RUNS/'connection-check.json').write_text(json.dumps(results,indent=2))
+        print(json.dumps(results,indent=2),flush=True)
+        if any(value['status']!='ok' for value in results.values()):
+            raise RuntimeError('Connection check incomplete. See each provider status and the private results artifact.')
         print('River health and GBrain tool discovery completed. See the private results artifact.')
     elif op=='baseline':
         wait_for('baseline')
