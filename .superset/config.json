@@ -1,0 +1,4 @@
+{
+  "setup": ["bash .superset/setup.sh"],
+  "run": [".venv/bin/python -m immune.server"]
+}
