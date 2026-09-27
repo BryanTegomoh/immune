@@ -31,14 +31,20 @@ def tool_args(schema, operation, content):
         args = expand(json.loads(raw))
     else:
         props = schema.get('properties', {})
-        names = ('content','text','memory','note','body') if operation == 'remember' else ('query','text','question')
+        names = ('fact','content','text','memory','note','body') if operation == 'remember' else ('query','text','question')
         name = next((k for k in names if k in props and props[k].get('type') == 'string'), None)
         if not name:
             raise RuntimeError('Unknown GBrain schema. Set GBRAIN_'+operation.upper()+'_ARGS from the discovered schema.')
         args = {name: content}
-        defaults = {'title':'IMMUNE expert correction', 'tags':['immune','synthetic','expert-correction']}
+        defaults = {'title':'IMMUNE record', 'tags':['immune','synthetic'],
+                    'provenance':'IMMUNE hackathon application, 2026-09-27; synthetic records only.'}
         for key in schema.get('required', []):
             if key not in args and key in defaults: args[key] = defaults[key]
+        if 'entity' in props: args['entity']='immune-hackathon'
+        if operation=='recall' and 'entity' in props and 'grep' in props:
+            args.pop(name,None)
+            args['grep']=content
+            if 'limit' in props: args['limit']=100
     validate(args, schema)
     return args
 
