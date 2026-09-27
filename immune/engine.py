@@ -101,7 +101,7 @@ def start(action):
                     STATE['connections']['GBrain']='Connected'
                 update('GBrain tool discovery succeeded')
             elif action=='recall':
-                value=providers.gbrain('recall','IMMUNE synthetic agent evaluation expert corrections')
+                value=providers.gbrain('recall','IMMUNE synthetic training correction')
                 with LOCK: STATE['recall']=value; STATE['connections']['GBrain']='Recall verified'
                 update('Incident memory retrieved from GBrain')
             elif action=='sync':
