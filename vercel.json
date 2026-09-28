@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/workbench.js": {
+      "maxDuration": 60,
+      "includeFiles": "data/*.json"
+    }
+  },
+  "rewrites": [
+    {"source": "/api/:route", "destination": "/api/workbench?route=:route"}
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {"key": "X-Content-Type-Options", "value": "nosniff"},
+        {"key": "Referrer-Policy", "value": "no-referrer"},
+        {"key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self' https://raw.githubusercontent.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"}
+      ]
+    }
+  ]
+}

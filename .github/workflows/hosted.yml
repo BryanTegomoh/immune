@@ -1,0 +1,66 @@
+name: IMMUNE hosted workbench
+run-name: Hosted ${{ inputs.action }} / ${{ inputs.request_id }}
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        options: [correct, baseline, train, connect, sync, recall]
+        required: true
+      correction:
+        type: string
+        default: '{}'
+      request_id:
+        type: string
+        required: true
+      confirm_training:
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: immune-live-experiment
+  cancel-in-progress: false
+jobs:
+  workbench:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Restore latest hosted state, or recorded seed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p runs
+          cp data/recorded-state.json runs/state.json
+          python -m immune.restore_hosted
+      - name: Install providers when needed
+        if: inputs.action != 'correct'
+        run: python -m pip install -r requirements.txt
+      - name: Execute authorized operation
+        env:
+          IMMUNE_HOSTED_ACTION: ${{ inputs.action }}
+          IMMUNE_HOSTED_CORRECTION: ${{ inputs.correction }}
+          IMMUNE_CONFIRM_TRAINING: ${{ inputs.confirm_training }}
+          RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+          GBRAIN_TOKEN: ${{ secrets.GBRAIN_TOKEN }}
+          MEMORABLE_API_KEY: ${{ secrets.MEMORABLE_API_KEY }}
+          GBRAIN_REMEMBER_ARGS: ${{ vars.GBRAIN_REMEMBER_ARGS }}
+          GBRAIN_RECALL_ARGS: ${{ vars.GBRAIN_RECALL_ARGS }}
+        run: python -m immune.hosted
+      - name: Preserve state, including errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: immune-hosted-state
+          path: runs/state.json
+          retention-days: 90
+          if-no-files-found: error

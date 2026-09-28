@@ -43,6 +43,10 @@ The [recorded demo video](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f8
 
 ## Quick start
 
+### Hosted workbench
+
+The full application can now run with a Vercel frontend/API and a GitHub Actions background runner. Public visitors inspect the recorded evidence; owner authorization unlocks correction saves, baseline inference, training, memory sync, and recall. Provider keys remain in Actions secrets, and training requires explicit confirmation. See [hosting and access instructions](docs/HOSTING.md). This hosting adaptation was added after the hackathon submission.
+
 Python 3.10+ can run the bundled interface without provider credentials:
 
 ```bash
