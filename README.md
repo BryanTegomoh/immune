@@ -41,6 +41,10 @@ Memorable produced procedure drafts. A [separate memory demonstration](https://g
 
 The [recorded demo video](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f87-92c4-57fe88b345f4) shows the actual workbench and completed paired results. A [direct MP4 download](https://raw.githubusercontent.com/BryanTegomoh/immune/main/docs/IMMUNE-demo.mp4) is also available without the Perplexity player. The earlier self-contained [evidence report](docs/demo.html) and portions of the [verification notes](docs/VERIFICATION.md) may still describe the baseline-only snapshot; the completed paired run linked above is authoritative for the final result.
 
+## Public presentation
+
+The public homepage presents the completed experiment, an interactive case explorer, training trace, video, and a browser-only review exercise. Use **Open workbench** to enter the full owner-authorized application. This presentation was polished after the hackathon. See [public-site setup and verification](docs/PUBLIC-SITE.md).
+
 ## Quick start
 
 ### Hosted workbench
