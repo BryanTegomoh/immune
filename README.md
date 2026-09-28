@@ -6,7 +6,7 @@ IMMUNE is a workbench for reviewing AI agent decisions and carrying those correc
 
 Built by [Bryan Tegomoh, MD, MPH](https://github.com/BryanTegomoh) for the **Own Your Intelligence Hackathon**, September 27, 2026. Created from scratch during the event.
 
-[Watch the recorded demo](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f87-92c4-57fe88b345f4) · [Run locally](#quick-start) · [Measured results](#measured-results) · [Review the cases](docs/TRAINING-REVIEW.md) · [Technical verification](docs/VERIFICATION.md)
+[Open IMMUNE](https://immune-chi.vercel.app) · [Watch the recorded demo](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f87-92c4-57fe88b345f4) · [Run locally](#quick-start) · [Measured results](#measured-results) · [Review the cases](docs/TRAINING-REVIEW.md) · [Technical verification](docs/VERIFICATION.md)
 
 ## Why IMMUNE
 

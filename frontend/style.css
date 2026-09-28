@@ -30,3 +30,6 @@ button.primary:disabled{background:#edf8dc;border-color:#edf8dc;color:#667553}
 [data-theme=dark] td{border-color:var(--line)}
 .provider small.quality-warning{color:#86520d}[data-theme=dark] .provider small.quality-warning{color:#efc47d}
 @media(max-width:740px){.hosted-panel{padding:16px}.hosted-links{gap:12px}.hosted-links strong{flex-basis:100%}.hosted-panel form{display:grid}.hosted-panel input{width:100%;min-width:0}.hero h1{font-size:32px}.provider small{overflow-wrap:anywhere}.theme-toggle{font-size:12px}.caption{font-size:12px}header{gap:8px}}
+.provider:nth-child(2) small.verified{color:#86520d}
+[data-theme=dark] .provider:nth-child(2) small.verified{color:#efc47d}
+@media(max-width:740px){.provider{grid-template-columns:90px minmax(0,1fr)}.provider small{grid-column:2;overflow-wrap:normal}}
