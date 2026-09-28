@@ -2,7 +2,7 @@
 
 The Vercel deployment serves the React workbench and a stateless Node API. Long-running operations execute in the owner-authorized `hosted.yml` GitHub Actions workflow. The original loopback Python server remains available.
 
-Production: https://immune-chi.vercel.app. The project is named `immune`; `immune.vercel.app` was already in use. GitHub `main` is connected to Vercel for subsequent deployments.
+Production: https://immune-ai.vercel.app. The project is named `immune`; `immune.vercel.app` was already in use. The production domain is attached to the project so future deployments update it automatically. GitHub `main` is connected to Vercel for subsequent deployments.
 
 ## Access and secrets
 
