@@ -1,12 +1,38 @@
 # IMMUNE
 
-### Expert feedback that agents can remember, reuse, and test.
+### A learning loop for persistent agents.
 
-IMMUNE is a workbench for reviewing AI agent decisions and carrying those corrections into persistent memory and model evaluation. An expert reviews an output against its evidence, chooses **SHIP**, **REVISE**, or **ESCALATE**, and records the reason. The system connects that feedback to GBrain incident memory, Memorable procedure extraction, and a River training pipeline.
+IMMUNE is evolving from an expert-review workbench into a learning layer for persistent agents. A trusted correction or verified task outcome can enter a durable queue; a background worker trains a candidate, checks for improvement and regressions, and selects the checkpoint used by subsequent tasks. **A person does not need to approve each candidate update.**
+
+The original hackathon workbench remains available: it connects SHIP / REVISE / ESCALATE reviews to GBrain incident memory, Memorable procedure extraction, and a River training pipeline. Its recorded results are kept separate from the newer autonomous runtime.
 
 Built by [Bryan Tegomoh, MD, MPH](https://github.com/BryanTegomoh) for the **Own Your Intelligence Hackathon**, September 27, 2026. Created from scratch during the event.
 
+The autonomous runtime, hosting and public-site refinements were added after submission. They were not part of the judged hackathon build.
+
 [Open IMMUNE](https://immune-ai.vercel.app) · [Watch the recorded demo](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f87-92c4-57fe88b345f4) · [Run locally](#quick-start) · [Measured results](#measured-results) · [Review the cases](docs/TRAINING-REVIEW.md) · [Technical verification](docs/VERIFICATION.md)
+
+## Autonomous learning
+
+```text
+Task outcome → trusted correction → candidate update → automatic evaluation
+                                                       ├─ pass → active checkpoint
+                                                       └─ fail → keep existing model
+```
+
+The new [autonomous runtime](docs/AUTONOMOUS-LEARNING.md) implements:
+
+- **Unattended intake:** signed feedback from a trusted task verifier, or a correction supplied by a person.
+- **Actual-output training:** full corrected replies or structured outputs, not just decision labels.
+- **Continuity:** training resumes from the active training checkpoint; successful prior lessons are replayed.
+- **Automatic promotion:** target improvement, no observed regressions, and all configured safety cases passing.
+- **Prospective inference:** subsequent tasks use the active inference checkpoint.
+- **Recovery:** trusted critical-regression reports trigger rollback and a learning pause.
+- **Bounded operation:** durable state, concurrency exclusion, update/step/token limits, and no silent retry after ambiguous failures.
+
+**Verification status:** control-flow and River adapter contract tests pass without provider calls. A new end-to-end paid River continual-learning experiment has **not** been run, and no new model improvement is claimed. The included evaluation is a small contract-test template, not a validated assistant benchmark. No billable daemon is started by installation, a repository push, or loading the website.
+
+Start with [configuration, verifier integration and operating limits](docs/AUTONOMOUS-LEARNING.md). The agent still needs trustworthy feedback: its own unsupported assertion that it fixed a mistake is not treated as ground truth.
 
 ## Why IMMUNE
 
@@ -14,7 +40,7 @@ An expert correction should be useful beyond the conversation in which it was ma
 
 The current prototype focuses on synthetic evidence-review and authorization scenarios: unsupported claims, invented citations, uncertainty, untrusted instructions, and actions requiring human approval.
 
-## How it works
+## How the original workbench works
 
 1. **Review:** inspect the supplied evidence and the agent's proposed output.
 2. **Correct:** choose a decision and explain it. Draft labels become approved examples only after human review.
@@ -33,7 +59,7 @@ The following are recorded API results, not simulated scores.
 | River | Completed paired Qwen3.5-9B experiment: **11/12 correct before and after**, 12 approved examples, 12 training steps, and a saved checkpoint; zero invalid outputs and zero missed required escalations in both evaluations | [Completed paired run](https://github.com/BryanTegomoh/immune/actions/runs/36359516068) |
 | GBrain | Wrote a unique diagnostic fact and retrieved that exact fact; also stored and retrieved a procedure draft | [Memory run](https://github.com/BryanTegomoh/immune/actions/runs/36359383279) |
 | Memorable | Extracted a procedure from a completed GBrain task and a successful repository test run | [Procedure run](https://github.com/BryanTegomoh/immune/actions/runs/36359383279) |
-| Integrity checks | Eight automated tests pass locally and in GitHub Actions | [Tests](tests/test_integrity.py) |
+| Original experiment integrity | Eight original integrity tests remain in the suite; the new autonomous runtime has separate regression, trust-boundary and checkpoint tests | [Original tests](tests/test_integrity.py), [autonomous-loop tests](tests/test_learning.py), [River adapter tests](tests/test_river_learning.py) |
 
 **Paired training completed. No net accuracy improvement is claimed.** On the same 12 held-out cases, H12 improved from ESCALATE to the reference REVISE decision, while H07 regressed from the correct SHIP decision to REVISE. One correction and one regression left accuracy unchanged at 11/12. The run used 12 human-approved synthetic training examples and completed 12 training steps. The saved checkpoint is `river://dea3a115-3a68-4d59-8f5a-44994f435ee6/sampler_weights/immune-6006e7b3ab`. Inspect the [paired run artifact](https://github.com/BryanTegomoh/immune/actions/runs/36359516068) for raw predictions, losses, and provenance.
 
@@ -114,7 +140,7 @@ To view a recorded experiment in the local interface, place its artifact's `stat
 
 See [integration and demo instructions](docs/SPONSOR-DEMO.md). UFO integration is not implemented.
 
-## Evaluation design
+## Original experiment evaluation design
 
 - **24 training cases and 12 held-out cases**, balanced across SHIP, REVISE, and ESCALATE.
 - Held-out cases cannot be approved through the correction endpoint or included in the training batch.
@@ -123,7 +149,7 @@ See [integration and demo instructions](docs/SPONSOR-DEMO.md). UFO integration i
 - Training is configured for 12 full-batch updates at learning rate `1e-4`. Each experiment starts from the base model.
 - Metrics include correctness, invalid output format, missed required escalations, and unnecessary escalation of acceptable outputs. Raw predictions remain available for inspection.
 
-This small synthetic benchmark demonstrates the engineering workflow. It is not independent clinical validation. The prototype does not implement continual learning, automatic model deployment, or a guarantee that any correction improves performance.
+This small synthetic benchmark demonstrates the original engineering workflow. It is not independent clinical validation. The original workbench does not implement continual learning or automatic model promotion. The newer autonomous runtime implements a separate candidate/promotion loop, with its own tests and explicit verification limits; the historical result is not evidence of its efficacy.
 
 ## Development
 
@@ -131,6 +157,7 @@ This small synthetic benchmark demonstrates the engineering workflow. It is not 
 npm ci
 npm run build
 python -m unittest discover -s tests -v
+node --test tests/hosted-api.test.js
 ```
 
 Use `npm run dev` for the Vite development server while the Python API is running. Runtime state is stored in the ignored `runs/` directory. Run only one state-writing Python process per directory.
@@ -142,6 +169,10 @@ python scripts/build_demo_report.py runs/state.json --memory runs/memory-check.j
 ```
 
 ## Documentation
+
+- [Autonomous learning runtime and trust model](docs/AUTONOMOUS-LEARNING.md)
+- [Autonomy policy example](examples/autonomy/policy.json)
+- [Automated integrity and regression checks](.github/workflows/tests.yml)
 
 - [Training-case review](docs/TRAINING-REVIEW.md)
 - [Verification and limitations](docs/VERIFICATION.md)

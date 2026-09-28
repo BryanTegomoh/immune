@@ -1,5 +1,7 @@
 # IMMUNE demo guide
 
+Status: this document describes the original hackathon workbench, not the post-hackathon autonomous runtime. For the new direction, see [Autonomous learning](AUTONOMOUS-LEARNING.md). The completed historical experiment scored 11/12 before and after; no net improvement is claimed.
+
 ## One sentence
 
 IMMUNE helps experts turn corrections into persistent agent memory and testable training examples.
@@ -14,11 +16,11 @@ IMMUNE helps experts turn corrections into persistent agent memory and testable 
 
 **1:05 — Show the evaluation.** Open the evidence report and an individual case. River's recorded baseline scored **11/12**, with zero invalid outputs and zero missed required escalations. Show the remaining error: an escalation where the reference called for revision.
 
-**1:30 — Explain the training experiment.** The implemented pipeline trains only on approved decisions, saves a checkpoint, and repeats the same held-out evaluation. Paired training has not yet completed, so no improvement is claimed.
+**1:30 — Explain the completed training experiment.** The pipeline trained on 12 approved decisions for 12 steps, saved a checkpoint, and repeated the same held-out evaluation. The score stayed 11/12: H12 improved and H07 regressed. This shows a measured trade-off, not a net improvement.
 
 **1:50 — Close.** “As a physician and epidemiologist, I care about defining failures and checking whether apparent progress is real. IMMUNE makes expert feedback persistent and its effects measurable.”
 
-## If a paired training run completes
+## When presenting a new paired run
 
 Replace the pending-training segment with the recorded before/after scores, approved example count, checkpoint, and raw predictions. Show regressions alongside improvements. Use the paired baseline from that run, not a separate earlier evaluation.
 
@@ -27,6 +29,7 @@ If there is no improvement, say so. If the only gain is output-format compliance
 ## Evidence and integration status
 
 - [River baseline](https://github.com/BryanTegomoh/immune/actions/runs/36358066104)
+- [Completed paired run](https://github.com/BryanTegomoh/immune/actions/runs/36359516068)
 - [GBrain and Memorable run](https://github.com/BryanTegomoh/immune/actions/runs/36359383279)
 - [Verification record](VERIFICATION.md)
 - [Integration guide](SPONSOR-DEMO.md)

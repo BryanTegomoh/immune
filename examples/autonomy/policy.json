@@ -1,0 +1,12 @@
+{
+  "min_new_examples": 2,
+  "max_new_examples": 8,
+  "replay_examples": 16,
+  "max_updates_per_day": 2,
+  "steps": 4,
+  "max_input_tokens": 2048,
+  "max_output_tokens": 512,
+  "min_cases_per_suite": 4,
+  "min_target_gain": 1,
+  "trusted_verifiers": ["task_tests"]
+}
