@@ -39,7 +39,7 @@ The following are recorded API results, not simulated scores.
 
 Memorable produced procedure drafts. A [separate memory demonstration](https://github.com/BryanTegomoh/immune/actions/runs/36359383279) returned `admitted=true` with `reason=judge_unparseable`; all 12 procedure drafts from the [training run](https://github.com/BryanTegomoh/immune/actions/runs/36359516068) were rejected with `reason=no_postcondition`. We retain these outcomes transparently and do not claim validated procedure quality. The separate memory demonstration used a diagnostic record; the paired training run also synced and recalled the approved correction records.
 
-The [recorded demo video](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f87-92c4-57fe88b345f4) shows the actual workbench and completed paired results. The earlier self-contained [evidence report](docs/demo.html) and portions of the [verification notes](docs/VERIFICATION.md) may still describe the baseline-only snapshot; the completed paired run linked above is authoritative for the final result.
+The [recorded demo video](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f87-92c4-57fe88b345f4) shows the actual workbench and completed paired results. A [direct MP4 download](https://raw.githubusercontent.com/BryanTegomoh/immune/main/docs/IMMUNE-demo.mp4) is also available without the Perplexity player. The earlier self-contained [evidence report](docs/demo.html) and portions of the [verification notes](docs/VERIFICATION.md) may still describe the baseline-only snapshot; the completed paired run linked above is authoritative for the final result.
 
 ## Quick start
 
