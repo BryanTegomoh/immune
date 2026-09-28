@@ -6,7 +6,7 @@ IMMUNE is a workbench for reviewing AI agent decisions and carrying those correc
 
 Built by [Bryan Tegomoh, MD, MPH](https://github.com/BryanTegomoh) for the **Own Your Intelligence Hackathon**, September 27, 2026. Created from scratch during the event.
 
-[Run locally](#quick-start) · [Measured results](#measured-results) · [Review the cases](docs/TRAINING-REVIEW.md) · [Technical verification](docs/VERIFICATION.md)
+[Watch the recorded demo](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f87-92c4-57fe88b345f4) · [Run locally](#quick-start) · [Measured results](#measured-results) · [Review the cases](docs/TRAINING-REVIEW.md) · [Technical verification](docs/VERIFICATION.md)
 
 ## Why IMMUNE
 
@@ -30,16 +30,16 @@ The following are recorded API results, not simulated scores.
 
 | Component | Verified result | Evidence |
 |---|---|---|
-| River | Qwen3.5-9B baseline: **11/12 correct**, zero invalid outputs, zero missed required escalations | [Baseline run](https://github.com/BryanTegomoh/immune/actions/runs/36358066104) |
+| River | Completed paired Qwen3.5-9B experiment: **11/12 correct before and after**, 12 approved examples, 12 training steps, and a saved checkpoint; zero invalid outputs and zero missed required escalations in both evaluations | [Completed paired run](https://github.com/BryanTegomoh/immune/actions/runs/36359516068) |
 | GBrain | Wrote a unique diagnostic fact and retrieved that exact fact; also stored and retrieved a procedure draft | [Memory run](https://github.com/BryanTegomoh/immune/actions/runs/36359383279) |
 | Memorable | Extracted a procedure from a completed GBrain task and a successful repository test run | [Procedure run](https://github.com/BryanTegomoh/immune/actions/runs/36359383279) |
 | Integrity checks | Eight automated tests pass locally and in GitHub Actions | [Tests](tests/test_integrity.py) |
 
-**Paired training has not yet completed. No post-training improvement is claimed.** The baseline's single error was an escalation where the draft reference called for revision. The verified GBrain round-trip used a diagnostic record, not an expert-approved correction.
+**Paired training completed. No net accuracy improvement is claimed.** On the same 12 held-out cases, H12 improved from ESCALATE to the reference REVISE decision, while H07 regressed from the correct SHIP decision to REVISE. One correction and one regression left accuracy unchanged at 11/12. The run used 12 human-approved synthetic training examples and completed 12 training steps. The saved checkpoint is `river://dea3a115-3a68-4d59-8f5a-44994f435ee6/sampler_weights/immune-6006e7b3ab`. Inspect the [paired run artifact](https://github.com/BryanTegomoh/immune/actions/runs/36359516068) for raw predictions, losses, and provenance.
 
-Memorable's second response reported `admitted: true` with `reason: judge_unparseable`. The draft and its provenance are retained, but that response does not establish procedure quality. See the [verification record](docs/VERIFICATION.md) for the earlier result and full limitations.
+Memorable produced procedure drafts. A [separate memory demonstration](https://github.com/BryanTegomoh/immune/actions/runs/36359383279) returned `admitted=true` with `reason=judge_unparseable`; all 12 procedure drafts from the [training run](https://github.com/BryanTegomoh/immune/actions/runs/36359516068) were rejected with `reason=no_postcondition`. We retain these outcomes transparently and do not claim validated procedure quality. The separate memory demonstration used a diagnostic record; the paired training run also synced and recalled the approved correction records.
 
-A self-contained [evidence report](docs/demo.html) includes expandable case details, predictions, and experiment provenance. Open the downloaded HTML in a browser or publish it through Superset Pages.
+The [recorded demo video](https://www.perplexity.ai/computer/a/bc4bfb35-2912-4f87-92c4-57fe88b345f4) shows the actual workbench and completed paired results. The earlier self-contained [evidence report](docs/demo.html) and portions of the [verification notes](docs/VERIFICATION.md) may still describe the baseline-only snapshot; the completed paired run linked above is authoritative for the final result.
 
 ## Quick start
 
